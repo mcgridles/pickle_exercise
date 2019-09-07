@@ -1,4 +1,5 @@
 import itertools
+import random
 import enchant
 
 
@@ -73,7 +74,9 @@ def number_to_words(num):
 	:return: (str) -> US phone number containing a combination of numbers and a word
 	"""
 
-	pass
+	# Find all possible wordifications and return a random selection from the list
+	wordified = all_wordifications(num)
+	return random.choice(wordified)
 
 
 def words_to_number(wordified):

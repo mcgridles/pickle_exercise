@@ -8,12 +8,18 @@ class TestPhoneNumbers(unittest.TestCase):
 		self.test_num1 = '1-800-724-6837'
 		self.test_word1 = '1-800-PAINTER'
 
-	@unittest.skip('')
 	def test_number_to_words_valid_number(self):
 		word_output = number_to_words(self.test_num1)
+		possible_ouput = [
+			'1-800-72-INTER',
+			'1-800-72-HOVER',
+			'1-800-PAINTER',
+			'1-800-724-OVER',
+			'1-800-724-MUDS',
+		]
 
 		self.assertTrue(type(word_output) is str)
-		self.assertEqual(word_output, self.test_word1)
+		self.assertTrue(word_output in possible_ouput)
 
 	def test_words_to_number_valid_number(self):
 		number_output = words_to_number(self.test_word1)
