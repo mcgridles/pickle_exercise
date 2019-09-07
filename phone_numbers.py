@@ -79,12 +79,16 @@ def number_to_words(num):
 	# Generate all possible wordifications
 	wordified = all_wordifications(num)
 
-	# Find the phone number with the longest word
-	words = [w.split('-')[-1] for w in wordified]
-	lengths = list(map(len, words))
-	longest = max(lengths)
+	if not wordified:
+		# If no possible wordified numbers, return original number
+		return num
+	else:
+		# Find the phone number with the longest word
+		words = [w.split('-')[-1] for w in wordified]
+		lengths = list(map(len, words))
+		longest = max(lengths)
 
-	return wordified[lengths.index(longest)]
+		return wordified[lengths.index(longest)]
 
 
 def words_to_number(wordified):
