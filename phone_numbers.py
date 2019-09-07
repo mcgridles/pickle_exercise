@@ -1,5 +1,4 @@
 import itertools
-import random
 import enchant
 
 
@@ -21,7 +20,7 @@ def check_input(num):
 
 	# Check length is correct
 	try:
-		assert(len(num) == 11)
+		assert(len(num) >= 10)
 	except AssertionError:
 		raise ValueError('Invalid number containing {} digits.'.format(len(num)))
 
@@ -30,7 +29,10 @@ def check_input(num):
 		if not (n.isnumeric() or n.isalpha()):
 			raise ValueError('Invalid characters in phone number.')
 
-	return num
+	number = num[-10:]   # Last 10 digits are US phone number
+	country = num[:-10]  # Remaning digits are considered country code
+
+	return country, number
 
 
 def switch(n):
@@ -74,9 +76,15 @@ def number_to_words(num):
 	:return: (str) -> US phone number containing a combination of numbers and a word
 	"""
 
-	# Find all possible wordifications and return a random selection from the list
+	# Generate all possible wordifications
 	wordified = all_wordifications(num)
-	return random.choice(wordified)
+
+	# Find the phone number with the longest word
+	words = [w.split('-')[-1] for w in wordified]
+	lengths = list(map(len, words))
+	longest = max(lengths)
+
+	return wordified[lengths.index(longest)]
 
 
 def words_to_number(wordified):
@@ -90,12 +98,12 @@ def words_to_number(wordified):
 	:return: (str) -> Valid US phone number
 	"""
 
-	wordified = check_input(wordified)
+	country_code, wordified = check_input(wordified)
 
-	num = ''
+	num = country_code + '-' if country_code else ''
 	for i, w in enumerate(wordified):
 		# Add hyphens in correct place
-		if i in [1, 4, 7]:
+		if i in [3, 6]:
 			num += '-'
 
 		if w.isalpha():
@@ -106,18 +114,19 @@ def words_to_number(wordified):
 	return num
 
 
-def all_wordifications(num):
+def all_wordifications(num, lang='en_US'):
 	"""
 	Outputs all combinations of English words and numbers in a phone number
 
 	:param num: (str) -> Valid US phone number
+	:param lang: (str) -> Enchant language code for dictionary
 	:return: (list(str)) -> All possible combinations of English words and numbers in the phone number
 	"""
 
-	num = check_input(num)
+	country_code, number = check_input(num)
 
 	letter_candidates = []
-	for n in num:
+	for n in number:
 		if n == '0' or n == '1':
 			# Words must be to the right of the right-most "0" and "1"
 			# If "0" or "1" is encountered, reset list and continue
@@ -126,7 +135,7 @@ def all_wordifications(num):
 			# Keep list of possible letters for each position in the phone number
 			letter_candidates.append(switch(n))
 
-	dictionary = enchant.Dict('en_US')  # Using PyEnchant for simple English dictionary
+	dictionary = enchant.Dict(lang)  # Using PyEnchant for dictionary
 	wordifications = []
 	for permutation in itertools.product(*letter_candidates):
 		for i in range(2, len(permutation)):  # Constrain to words >2 letters to avoid abbreviations
@@ -135,18 +144,17 @@ def all_wordifications(num):
 			# PyEnchant seems to have some acronyms in its dictionary 
 			# so only lowercase words are considered to avoid them
 			if dictionary.check(word.lower()):
-				wordified = num[:-i-1] + word
+				wordified = number[:-i-1] + word
 
 				# Add hyphens back into phone number
-				hyphenated = ''
+				hyphenated = country_code + '-' if country_code else ''
 				for i in range(len(wordified)):
 					if wordified[i+1].isalpha():
 						hyphenated += wordified[i] + '-' + wordified[i+1:]
 						break
-					elif i in [1, 4, 7]:
-						hyphenated += '-' + wordified[i]
-					else:
-						hyphenated += wordified[i]
+					elif i in [3, 6]:
+						hyphenated += '-'
+					hyphenated += wordified[i]
 
 				wordifications.append(hyphenated)
 

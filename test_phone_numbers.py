@@ -10,16 +10,9 @@ class TestPhoneNumbers(unittest.TestCase):
 
 	def test_number_to_words_valid_number(self):
 		word_output = number_to_words(self.test_num1)
-		possible_ouput = [
-			'1-800-72-INTER',
-			'1-800-72-HOVER',
-			'1-800-PAINTER',
-			'1-800-724-OVER',
-			'1-800-724-MUDS',
-		]
 
 		self.assertTrue(type(word_output) is str)
-		self.assertTrue(word_output in possible_ouput)
+		self.assertEqual(word_output, self.test_word1)
 
 	def test_words_to_number_valid_number(self):
 		number_output = words_to_number(self.test_word1)
@@ -46,17 +39,17 @@ class TestUtils(unittest.TestCase):
 	def setUp(self):
 		self.valid_num = '1-800-724-6837'
 		self.valid_word = '1-800-PAINTER'
-		self.invalid_num = '1-800-7245-6837'
-		self.invalid_word = '1-800-PAINTERS'
+		self.invalid_num = '800-724-683'
+		self.invalid_word = '1-800-PAINT'
 		self.invalid_character = '1-800-P@INTER'
 		self.invalid_type = 18007246837
 
 	def test_check_input_valid_input(self):
-		num = check_input(self.valid_num)
-		word = check_input(self.valid_word)
+		output1 = check_input(self.valid_num)
+		output2 = check_input(self.valid_word)
 
-		self.assertEqual(num, '18007246837')
-		self.assertEqual(word, '1800PAINTER')
+		self.assertEqual(output1, ('1', '8007246837'))
+		self.assertEqual(output2, ('1', '800PAINTER'))
 
 	def test_check_input_invalid_input(self):
 		with self.assertRaises(TypeError):
