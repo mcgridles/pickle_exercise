@@ -1,34 +1,19 @@
 import unittest
 
-from phone_numbers import number_to_words, words_to_number, all_wordification
+from phone_numbers import *
 
 
-class TestPhoneNumberManipulations(unittest.TestCase):
-
+class TestPhoneNumbers(unittest.TestCase):
 	def setUp(self):
-		self.test_num1 = "1-800-724-6837"
-		self.test_word1 = "1-800-PAINTER"
+		self.test_num1 = '1-800-724-6837'
+		self.test_word1 = '1-800-PAINTER'
 
-		self.invalid_num = "1-800-7245-6837"
-		self.invalid_word = "1-800-PAINTERS"
-		self.invalid_type = 18007246837
-
+	@unittest.skip('')
 	def test_number_to_words_valid_number(self):
 		word_output = number_to_words(self.test_num1)
 
 		self.assertTrue(type(word_output) is str)
 		self.assertEqual(word_output, self.test_word1)
-
-	def test_number_to_words_invalid_number(self):
-		with self.assertRaises(ValueError):
-			number_to_words(self.invalid_num)
-
-	def test_number_to_words_invalid_input_type(self):
-		with self.assertRaises(TypeError):
-			number_to_words(self.invalid_type)
-
-		with self.assertRaises(TypeError):
-			number_to_words(None)
 
 	def test_words_to_number_valid_number(self):
 		number_output = words_to_number(self.test_word1)
@@ -36,32 +21,59 @@ class TestPhoneNumberManipulations(unittest.TestCase):
 		self.assertTrue(type(number_output) is str)
 		self.assertEqual(number_output, self.test_num1)
 
-	def test_words_to_number_invalid_number(self):
-		with self.assertRaises(ValueError):
-			words_to_number(self.invalid_word)
-
-	def test_number_to_words_invalid_input_type(self):
-		with self.assertRaises(TypeError):
-			words_to_number(self.invalid_type)
-
-		with self.assertRaises(TypeError):
-			words_to_number(None)
-
 	def test_all_wordification_valid_number(self):
-		word_output = all_wordification(self.test_num1)
+		word_output = all_wordifications(self.test_num1)
 
 		self.assertTrue(type(word_output) is list)
 		self.assertTrue(len(word_output) > 0)
 		self.assertTrue(type(word_output[0]) is str)
-		# TODO: add assertEqual
+		self.assertCountEqual(word_output, [
+			'1-800-72-INTER',
+			'1-800-72-HOVER',
+			'1-800-PAINTER',
+			'1-800-724-OVER',
+			'1-800-724-MUDS',
+		])
 
-	def test_all_wordification_invalid_number(self):
+
+class TestUtils(unittest.TestCase):
+	def setUp(self):
+		self.valid_num = '1-800-724-6837'
+		self.valid_word = '1-800-PAINTER'
+		self.invalid_num = '1-800-7245-6837'
+		self.invalid_word = '1-800-PAINTERS'
+		self.invalid_character = '1-800-P@INTER'
+		self.invalid_type = 18007246837
+
+	def test_check_input_valid_input(self):
+		num = check_input(self.valid_num)
+		word = check_input(self.valid_word)
+
+		self.assertEqual(num, '18007246837')
+		self.assertEqual(word, '1800PAINTER')
+
+	def test_check_input_invalid_input(self):
+		with self.assertRaises(TypeError):
+			check_input(self.invalid_type)
+
 		with self.assertRaises(ValueError):
-			all_wordification(self.invalid_num)
+			check_input(self.invalid_num)
 
-	def test_all_wordification_invalid_input_type(self):
-		with self.assertRaises(TypeError):
-			all_wordification(self.invalid_type)
+		with self.assertRaises(ValueError):
+			check_input(self.invalid_word)
 
-		with self.assertRaises(TypeError):
-			all_wordification(None)
+		with self.assertRaises(ValueError):
+			check_input(self.invalid_character)
+
+	def test_switch(self):
+		num1 = switch('a')
+		num2 = switch('Z')
+		letter = switch('3')
+
+		self.assertEqual(num1, '2')
+		self.assertEqual(num2, '9')
+		self.assertEqual(letter, ['D', 'E', 'F'])
+
+
+if __name__ == '__main__':
+	unittest.main()
