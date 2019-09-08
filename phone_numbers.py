@@ -81,7 +81,7 @@ def all_wordifications(num, lang='en_US'):
 	dictionary = enchant.Dict(lang)  # Using PyEnchant for dictionary
 	wordifications = []
 	for permutation in itertools.product(*letter_candidates):
-		for i in range(2, len(permutation)):  # Constrain to words >2 letters to avoid abbreviations
+		for i in range(2, len(permutation)):  # Constrain to words >2 letters to avoid abbreviations (optional)
 			word = ''.join(permutation[-i-1:])  # Work from back to front so words are only at the end of the number
 
 			# PyEnchant seems to have some acronyms in its dictionary 
