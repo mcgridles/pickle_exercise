@@ -14,8 +14,7 @@ First, I define a "wordified" number to be a US phone number where some or all o
 
 For the coding, I started with `words_to_number()` because it's essentially just a look-up table and thus the most straightforward. Then, I moved on to `all_wordifications()` because `number_to_words()` is a subset of that problem. Finally, `number_to_words()` just requires selecting one of the possible phone numbers from `all_wordifications()`.
 
-
-Possible extensions/improvements that I may or may not make:
+### Possible extensions & improvements
 
 - The search space for `all_wordifications()` could be improved by looking up possible words as you go and ignoring letters that are not possible. For example, start with the first number **7** (as in **PAINTER**) for wich the first option is **P**. For the next number **2**, you can eliminate **B** and **C** as possible choices because there aren't any English words that start with **PB** or **PC**. From there, you are only looking for words that start with **PA** and so on. Depending on how long it takes to look up if there are any words that start with a certain set of letters this may not actually improve the efficiency time-wise.
 - `number_to_words()` could be sped up by returning the first wordified phone number found, though this would not be able to take advantage of the implementation of `all_wordifications()` and would thus involve duplicating a lot of the code.
