@@ -26,13 +26,11 @@ class TestPhoneNumbers(unittest.TestCase):
 		self.assertTrue(type(word_output) is list)
 		self.assertTrue(len(word_output) > 0)
 		self.assertTrue(type(word_output[0]) is str)
-		self.assertCountEqual(word_output, [
-			'1-800-72-INTER',
-			'1-800-72-HOVER',
-			'1-800-PAINTER',
-			'1-800-724-OVER',
-			'1-800-724-MUDS',
-		])
+		self.assertTrue('1-800-PAINTER' in word_output)
+		self.assertTrue('1-800-PAINT-37' in word_output)
+		self.assertTrue('1-800-PAIN-837' in word_output)
+		self.assertTrue('1-800-SAINT-37' in word_output)
+		self.assertTrue('1-800-72-HOVER' in word_output)
 
 
 if __name__ == '__main__':

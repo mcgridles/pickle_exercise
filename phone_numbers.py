@@ -1,7 +1,6 @@
 import itertools
-import enchant
 
-from utils import check_input, switch
+from utils import *
 
 
 def number_to_words(num):
@@ -22,11 +21,17 @@ def number_to_words(num):
 		# If no possible wordified numbers, return original number
 		return num
 	else:
-		# Find the phone number with the longest word
-		words = [w.split('-')[-1] for w in wordified]
-		lengths = list(map(len, words))
+		# Split numbers into sections by hyphens
+		split_numbers = [w.split('-') for w in wordified]
+
+		# Filter out all but the wordified part of each phone number
+		words = list(map(lambda x: list(filter(lambda y: not y.isdigit(), x))[0], split_numbers))
+
+		# Find the length of the longest wordified section
+		lengths = list(map(len, words))  
 		longest = max(lengths)
 
+		# Return wordified number with longest wordified section
 		return wordified[lengths.index(longest)]
 
 
@@ -57,7 +62,7 @@ def words_to_number(wordified):
 	return num
 
 
-def all_wordifications(num, lang='en_US'):
+def all_wordifications(num, lang='en_US', abbr=False):
 	"""
 	Outputs all combinations of English words and numbers in a phone number
 
@@ -67,38 +72,30 @@ def all_wordifications(num, lang='en_US'):
 	"""
 
 	country_code, number = check_input(num)
-
-	letter_candidates = []
-	for n in number:
-		if n == '0' or n == '1':
-			# Words must be to the right of the right-most "0" and "1"
-			# If "0" or "1" is encountered, reset list and continue
-			letter_candidates = []
-		else:
-			# Keep list of possible letters for each position in the phone number
-			letter_candidates.append(switch(n))
-
-	dictionary = enchant.Dict(lang)  # Using PyEnchant for dictionary
 	wordifications = []
-	for permutation in itertools.product(*letter_candidates):
-		for i in range(2, len(permutation)):  # Constrain to words >2 letters to avoid abbreviations (optional)
-			word = ''.join(permutation[-i-1:])  # Work from back to front so words are only at the end of the number
 
-			# PyEnchant seems to have some acronyms in its dictionary 
-			# so only lowercase words are considered to avoid them
-			if dictionary.check(word.lower()):
-				wordified = number[:-i-1] + word
+	# Use itertools.combinations() and a range to return all possible subsets of the phone number
+	for start, end in itertools.combinations(range(len(number) + 1), 2):
+		# Skip strings of length 1 or length 2 (if abbreviations are not wanted)
+		if not abbr and end - start < 3:
+			continue
+		elif end - start < 2:
+			continue
 
-				# Add hyphens back into phone number
-				hyphenated = country_code + '-' if country_code else ''
-				for i in range(len(wordified)):
-					if wordified[i+1].isalpha():
-						hyphenated += wordified[i] + '-' + wordified[i+1:]
-						break
-					elif i in [3, 6]:
-						hyphenated += '-'
-					hyphenated += wordified[i]
+		subset = number[start:end]
 
-				wordifications.append(hyphenated)
+		# Substrings with "0" or "1" contain spaces or invalid characters so they should be skipped
+		if '0' in subset or '1' in subset:
+			continue
 
-	return list(set(wordifications))
+		letters = get_letters(subset)  # Look-up all possible letters for the string of numbers
+		words = get_words(letters, lang)  # Find all valid English words from possible letters
+		wordify = insert_words(words, number, start, end)  # Insert words into phone numbers
+
+		wordifications.extend(wordify)
+
+	# Remove duplicates and format phone numbers
+	wordifications = list(set(wordifications))
+	wordifications = format_numbers(country_code, wordifications)
+
+	return wordifications
